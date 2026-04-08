@@ -37,7 +37,14 @@
     .toggle-checkbox:checked + .toggle-label { background-color: #34D399; }
   </style>
 </head>
-<body class="font-sans antialiased min-h-screen">
+<body class="font-sans antialiased min-h-screen pb-24 md:pb-0">
+
+  <!-- Mobile Header (Visible only on small screens) -->
+  <header class="md:hidden fixed top-0 left-0 right-0 h-16 bg-admin-card border-b border-admin-border flex items-center px-6 z-50">
+      <h1 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-fill ph-scissors text-admin-accent"></i> BarberManager
+      </h1>
+  </header>
 
   <div class="flex h-screen overflow-hidden">
     
@@ -65,7 +72,7 @@
       </div>
     </aside>
 
-    <main class="flex-1 h-full overflow-y-auto w-full p-6 lg:p-10 max-w-7xl mx-auto">
+    <main class="flex-1 h-full overflow-y-auto w-full p-6 pt-20 md:pt-10 lg:p-10 max-w-7xl mx-auto">
 
       <!-- MODULO 1: CITAS -->
       <div id="tab-citas" class="tab-content block">
@@ -147,6 +154,35 @@
     </main>
   </div>
 
+  <!-- Mobile Bottom Navigation (Floating & Glassmorphism) -->
+  <div class="md:hidden fixed bottom-6 left-0 right-0 px-6 z-50">
+      <nav class="bg-admin-card/80 backdrop-blur-xl border border-admin-border rounded-[2rem] px-6 py-4 flex justify-between items-center shadow-2xl">
+          <!-- Citas -->
+          <button onclick="openTab('tab-citas', this)" class="mobile-nav-btn flex flex-col items-center gap-1 text-admin-accent">
+              <i class="ph-fill ph-calendar-check text-2xl"></i>
+              <span class="text-[10px] font-bold">Citas</span>
+          </button>
+          
+          <!-- Servicios -->
+          <button onclick="openTab('tab-servicios', this)" class="mobile-nav-btn flex flex-col items-center gap-1 text-gray-400">
+              <i class="ph ph-list-dashes text-2xl"></i>
+              <span class="text-[10px] font-bold">Servicios</span>
+          </button>
+          
+          <!-- Configuración -->
+          <button onclick="openTab('tab-config', this)" class="mobile-nav-btn flex flex-col items-center gap-1 text-gray-400">
+              <i class="ph ph-gear text-2xl"></i>
+              <span class="text-[10px] font-bold">Ajustes</span>
+          </button>
+
+          <!-- Salir -->
+          <button onclick="window.location.href='index.html'" class="flex flex-col items-center gap-1 text-gray-400">
+              <i class="ph ph-house text-2xl"></i>
+              <span class="text-[10px] font-bold">Sitio</span>
+          </button>
+      </nav>
+  </div>
+
   <script>
     // ESTADO
     let currentAdminDate = new Date();
@@ -162,12 +198,38 @@
         document.querySelectorAll('.tab-content').forEach(el => el.classList.replace('block', 'hidden'));
         document.getElementById(id).classList.replace('hidden', 'block');
         
+        // Desktop Sidebar State
         document.querySelectorAll('.nav-btn').forEach(b => {
              b.classList.remove('bg-admin-accent/10', 'text-admin-accent');
              b.classList.add('text-gray-400', 'hover:text-white', 'hover:bg-white/5');
         });
-        btn.classList.add('bg-admin-accent/10', 'text-admin-accent');
-        btn.classList.remove('text-gray-400', 'hover:text-white', 'hover:bg-white/5');
+
+        // Mobile Bottom Nav State
+        document.querySelectorAll('.mobile-nav-btn').forEach(b => {
+             b.classList.remove('text-admin-accent');
+             b.classList.add('text-gray-400');
+             const icon = b.querySelector('i');
+             if (icon) icon.className = icon.className.replace('ph-fill', 'ph');
+        });
+        
+        // Find desktop and mobile buttons for this tab and activate them
+        const tabMap = { 'tab-citas': 0, 'tab-servicios': 1, 'tab-config': 2 };
+        const index = tabMap[id];
+        
+        const desktopBtns = document.querySelectorAll('.nav-btn');
+        const mobileBtns = document.querySelectorAll('.mobile-nav-btn');
+        
+        if (desktopBtns[index]) {
+            desktopBtns[index].classList.add('bg-admin-accent/10', 'text-admin-accent');
+            desktopBtns[index].classList.remove('text-gray-400', 'hover:text-white', 'hover:bg-white/5');
+        }
+        
+        if (mobileBtns[index]) {
+            mobileBtns[index].classList.remove('text-gray-400');
+            mobileBtns[index].classList.add('text-admin-accent');
+            const icon = mobileBtns[index].querySelector('i');
+            if (icon) icon.className = icon.className.replace('ph ', 'ph-fill ');
+        }
     }
 
     // MODULO CITAS

@@ -13,10 +13,25 @@ const defaultServices = [
     { id: 4, nombre: "Perfilado Cejas", precio: 5000, duracion: 30 }
 ];
 
-// Inicialización de Storage
-if (!localStorage.getItem('barber_settings')) localStorage.setItem('barber_settings', JSON.stringify(defaultSettings));
-if (!localStorage.getItem('barber_services')) localStorage.setItem('barber_services', JSON.stringify(defaultServices));
-if (!localStorage.getItem('barber_bookings')) localStorage.setItem('barber_bookings', JSON.stringify([]));
+
+// Inicialización Robusta de Storage
+function initDatabase() {
+    // Settings: Combinar existentes con defaults para asegurar que no falten llaves (como intervaloMinutos)
+    const currentSettings = JSON.parse(localStorage.getItem('barber_settings') || '{}');
+    localStorage.setItem('barber_settings', JSON.stringify({ ...defaultSettings, ...currentSettings }));
+
+    // Servicios: Solo inicializar si no existen
+    if (!localStorage.getItem('barber_services')) {
+        localStorage.setItem('barber_services', JSON.stringify(defaultServices));
+    }
+
+    // Reservas: Solo inicializar si no existen
+    if (!localStorage.getItem('barber_bookings')) {
+        localStorage.setItem('barber_bookings', JSON.stringify([]));
+    }
+}
+initDatabase();
+
 
 const DB = {
     getSettings: () => JSON.parse(localStorage.getItem('barber_settings')),
@@ -63,7 +78,7 @@ const DB = {
     
     getAvailableHours: (dateStr, newServiceDuration) => {
         const settings = DB.getSettings();
-        const interval = parseInt(settings.intervaloMinutos);
+        const interval = parseInt(settings.intervaloMinutos) || 30;
         const bookings = DB.getBookings().filter(b => b.fecha === dateStr && b.estado === "Confirmado");
         
         const timeToMins = (t) => { const [h,m] = t.split(':').map(Number); return h*60+m; };
