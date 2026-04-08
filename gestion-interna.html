@@ -14,10 +14,7 @@
   <script src="db.js"></script>
   
   <script>
-    if (prompt("Contraseña:") !== "1234") {
-        document.body.innerHTML = "<h1 style='color:white;text-align:center;margin-top:20%'>Acceso Denegado</h1>";
-        throw new Error("DNG");
-    }
+    // Acceso directo (prompt eliminado por solicitud)
 
     tailwind.config = {
       darkMode: 'class',
@@ -37,7 +34,7 @@
     .toggle-checkbox:checked + .toggle-label { background-color: #34D399; }
   </style>
 </head>
-<body class="font-sans antialiased min-h-screen pb-24 md:pb-0">
+<body class="font-sans antialiased min-h-[100dvh] bg-admin-bg text-gray-100 pb-20 md:pb-0">
 
   <!-- Mobile Header (Visible only on small screens) -->
   <header class="md:hidden fixed top-0 left-0 right-0 h-16 bg-admin-card border-b border-admin-border flex items-center px-6 z-50">
@@ -46,7 +43,7 @@
       </h1>
   </header>
 
-  <div class="flex h-screen overflow-hidden">
+  <div class="flex h-[100dvh] overflow-hidden">
     
     <aside class="hidden md:flex flex-col w-64 bg-admin-card border-r border-admin-border h-full shrink-0">
       <div class="p-6 border-b border-admin-border">
@@ -72,17 +69,17 @@
       </div>
     </aside>
 
-    <main class="flex-1 h-full overflow-y-auto w-full p-6 pt-20 md:pt-10 lg:p-10 max-w-7xl mx-auto">
+    <main class="flex-1 h-full overflow-y-auto w-full p-4 lg:p-10 pb-24 pt-20 md:pt-10 max-w-7xl mx-auto">
 
       <!-- MODULO 1: CITAS -->
       <div id="tab-citas" class="tab-content block">
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
             <h2 class="text-2xl lg:text-3xl font-bold tracking-tight mb-2">Agenda Diaria</h2>
-            <div class="flex items-center gap-3">
-               <button onclick="changeAdminDate(-1)" class="w-8 h-8 rounded-lg bg-admin-card border border-admin-border hover:bg-admin-border flex items-center justify-center transition-colors"><i class="ph-bold ph-caret-left"></i></button>
-               <p class="text-admin-accent font-bold px-2 py-1 bg-admin-card border border-admin-border rounded-lg" id="adminDateText">Cargando...</p>
-               <button onclick="changeAdminDate(1)" class="w-8 h-8 rounded-lg bg-admin-card border border-admin-border hover:bg-admin-border flex items-center justify-center transition-colors"><i class="ph-bold ph-caret-right"></i></button>
+            <div class="flex items-center gap-4">
+               <button onclick="changeAdminDate(-1)" class="w-11 h-11 rounded-lg bg-admin-card border border-admin-border hover:bg-admin-border flex items-center justify-center transition-colors"><i class="ph-bold ph-caret-left text-lg"></i></button>
+               <p class="text-admin-accent font-bold px-4 py-2 bg-admin-card border border-admin-border rounded-lg text-base" id="adminDateText">Cargando...</p>
+               <button onclick="changeAdminDate(1)" class="w-11 h-11 rounded-lg bg-admin-card border border-admin-border hover:bg-admin-border flex items-center justify-center transition-colors"><i class="ph-bold ph-caret-right text-lg"></i></button>
             </div>
           </div>
         </div>
@@ -112,12 +109,12 @@
             <div class="bg-admin-card border border-admin-border rounded-2xl p-6 h-fit">
                 <h3 class="font-bold text-white mb-4">Crear Nuevo Servicio</h3>
                 <div class="space-y-4">
-                    <input type="text" id="ns-nombre" placeholder="Nombre completo" class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent">
+                    <input type="text" id="ns-nombre" placeholder="Nombre completo" class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-4 text-base text-white focus:outline-none focus:border-admin-accent min-h-[48px]">
                     <div class="flex gap-2">
-                        <input type="number" id="ns-precio" placeholder="Precio ($)" class="w-1/2 bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent">
-                        <input type="number" id="ns-duracion" placeholder="Duración (min)" class="w-1/2 bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent">
+                        <input type="number" id="ns-precio" placeholder="Precio ($)" class="w-1/2 bg-admin-bg border border-admin-border rounded-xl px-4 py-4 text-base text-white focus:outline-none focus:border-admin-accent min-h-[48px]">
+                        <input type="number" id="ns-duracion" placeholder="Duración (min)" class="w-1/2 bg-admin-bg border border-admin-border rounded-xl px-4 py-4 text-base text-white focus:outline-none focus:border-admin-accent min-h-[48px]">
                     </div>
-                    <button onclick="crearServicio()" class="w-full bg-admin-accent text-admin-bg font-bold py-3 rounded-xl hover:bg-emerald-300 transition-colors">Guardar Servicio</button>
+                    <button onclick="crearServicio()" class="w-full bg-admin-accent text-admin-bg font-bold py-4 rounded-xl hover:bg-emerald-300 transition-colors min-h-[48px]">Guardar Servicio</button>
                 </div>
             </div>
         </div>
@@ -133,7 +130,7 @@
                    <h3 class="font-bold text-white mb-2 flex items-center gap-2"><i class="ph ph-clock"></i> Selector de Intervalos</h3>
                    <p class="text-sm text-gray-400 mb-6">Define en qué bloques de tiempo divides tu día laboral. Esto redibuja las horas del calendario.</p>
                    
-                   <select id="config-intervalo" onchange="guardarIntervalo()" class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent mb-2">
+                   <select id="config-intervalo" onchange="guardarIntervalo()" class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-4 text-base text-white focus:outline-none focus:border-admin-accent mb-2 min-h-[48px]">
                        <option value="30">Intervalos de 30 Minutos (Normal)</option>
                        <option value="60">Intervalos de 60 Minutos (Bloques Exactos)</option>
                    </select>
@@ -154,32 +151,24 @@
     </main>
   </div>
 
-  <!-- Mobile Bottom Navigation (Floating & Glassmorphism) -->
-  <div class="md:hidden fixed bottom-6 left-0 right-0 px-6 z-50">
-      <nav class="bg-admin-card/80 backdrop-blur-xl border border-admin-border rounded-[2rem] px-6 py-4 flex justify-between items-center shadow-2xl">
-          <!-- Citas -->
-          <button onclick="openTab('tab-citas', this)" class="mobile-nav-btn flex flex-col items-center gap-1 text-admin-accent">
+  <!-- Mobile Bottom Navigation (Native Style) -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-admin-card border-t border-admin-border shadow-[0_-4px_10px_rgba(0,0,0,0.3)]">
+      <nav class="flex justify-around items-center h-20">
+          <button onclick="openTab('tab-citas', this)" class="mobile-nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-admin-accent transition-colors py-2">
               <i class="ph-fill ph-calendar-check text-2xl"></i>
-              <span class="text-[10px] font-bold">Citas</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider">Agenda</span>
           </button>
-          
-          <!-- Servicios -->
-          <button onclick="openTab('tab-servicios', this)" class="mobile-nav-btn flex flex-col items-center gap-1 text-gray-400">
+          <button onclick="openTab('tab-servicios', this)" class="mobile-nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-gray-400 transition-colors py-2">
               <i class="ph ph-list-dashes text-2xl"></i>
-              <span class="text-[10px] font-bold">Servicios</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider">Servicios</span>
           </button>
           
-          <!-- Configuración -->
-          <button onclick="openTab('tab-config', this)" class="mobile-nav-btn flex flex-col items-center gap-1 text-gray-400">
+          <button onclick="openTab('tab-config', this)" class="mobile-nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-gray-400 transition-colors py-2">
               <i class="ph ph-gear text-2xl"></i>
-              <span class="text-[10px] font-bold">Ajustes</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider">Ajustes</span>
           </button>
 
-          <!-- Salir -->
-          <button onclick="window.location.href='index.html'" class="flex flex-col items-center gap-1 text-gray-400">
-              <i class="ph ph-house text-2xl"></i>
-              <span class="text-[10px] font-bold">Sitio</span>
-          </button>
+
       </nav>
   </div>
 
@@ -270,7 +259,7 @@
                     </div>
                   </div>
                   <div class="flex items-center gap-2">
-                    <button onclick="cancelarCita('${b.id}')" class="bg-admin-bg border border-admin-border text-red-400 hover:bg-red-500/10 font-semibold px-4 py-2 rounded-xl transition-all">Cancelar</button>
+                    <button onclick="cancelarCita('${b.id}')" class="bg-admin-bg border border-admin-border text-red-400 hover:bg-red-500/10 font-semibold px-5 py-3 rounded-xl transition-all min-h-[44px]">Cancelar</button>
                   </div>
                 </div>`;
             });
@@ -298,7 +287,7 @@
                  <h4 class="font-bold text-white">${s.nombre}</h4>
                  <p class="text-sm text-gray-400">$${s.precio.toLocaleString('es-CL')} • ${s.duracion} minutos</p>
                </div>
-               <button onclick="borrarServ(${s.id})" class="text-red-400 bg-red-400/10 hover:bg-red-400/20 px-3 py-2 rounded-lg transition-colors"><i class="ph-fill ph-trash"></i></button>
+                <button onclick="borrarServ(${s.id})" class="text-red-400 bg-red-400/10 hover:bg-red-400/20 p-4 rounded-xl transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"><i class="ph-fill ph-trash text-xl"></i></button>
             </div>`;
         });
     }
@@ -332,12 +321,12 @@
         for(let i=0; i<7; i++){
             let act = set.diasLaborales.includes(i) ? 'checked' : '';
             daysDiv.innerHTML += `
-            <label class="flex items-center justify-between cursor-pointer p-3 bg-admin-bg rounded-xl border border-admin-border">
-              <span class="text-white font-medium">${dayNames[i]}</span>
+            <label class="flex items-center justify-between cursor-pointer p-4 bg-admin-bg rounded-xl border border-admin-border min-h-[56px]">
+              <span class="text-white font-medium text-base">${dayNames[i]}</span>
               <div class="relative">
                 <input type="checkbox" onchange="toggleDay(${i}, this)" class="sr-only" ${act}>
-                <div class="block bg-gray-600 w-10 h-6 rounded-full transition-colors ${act ? 'bg-admin-accent' : ''}"></div>
-                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${act ? 'transform translate-x-4' : ''}"></div>
+                <div class="block bg-gray-600 w-12 h-7 rounded-full transition-colors ${act ? 'bg-admin-accent' : ''}"></div>
+                <div class="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform ${act ? 'transform translate-x-5' : ''}"></div>
               </div>
             </label>`;
         }
@@ -357,10 +346,10 @@
         const dotNode = inputRef.nextElementSibling.nextElementSibling;
         if(inputRef.checked) {
             bgNode.classList.add('bg-admin-accent');
-            dotNode.classList.add('transform', 'translate-x-4');
+            dotNode.classList.add('transform', 'translate-x-5');
         } else {
             bgNode.classList.remove('bg-admin-accent');
-            dotNode.classList.remove('transform', 'translate-x-4');
+            dotNode.classList.remove('transform', 'translate-x-5');
         }
     }
 
