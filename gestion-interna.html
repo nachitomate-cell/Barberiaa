@@ -77,9 +77,32 @@
 
       <!-- MODULO 1: CITAS -->
       <div id="tab-citas" class="tab-content block">
+        <!-- Widget de Reporte Mensual -->
+        <div class="mb-8 p-6 bg-gradient-to-br from-admin-card to-admin-bg border border-admin-accent/20 rounded-2xl shadow-lg relative overflow-hidden" id="monthlyRevenueWidget">
+            <div class="absolute top-0 right-0 pt-4 pr-6 opacity-5">
+                <i class="ph-fill ph-trend-up text-6xl text-admin-accent"></i>
+            </div>
+            <h3 class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-3">Mes Actual</h3>
+            <div class="flex flex-col sm:flex-row sm:items-end gap-6">
+                <div>
+                    <span class="block text-admin-accent text-3xl md:text-4xl font-black mb-1" id="monthlyRevTotal">$0</span>
+                    <span class="text-xs text-gray-500 font-medium">Ganancias del Mes</span>
+                </div>
+                <div>
+                    <span class="block text-white text-xl md:text-2xl font-bold mb-1" id="monthlyRevCount">0</span>
+                    <span class="text-xs text-gray-500 font-medium">Citas Atendidas</span>
+                </div>
+            </div>
+        </div>
+
         <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
-            <h2 class="text-2xl lg:text-3xl font-bold tracking-tight mb-2">Agenda Diaria</h2>
+            <div class="flex items-center gap-4 mb-2">
+              <h2 class="text-2xl lg:text-3xl font-bold tracking-tight">Agenda Diaria</h2>
+              <button onclick="openManualBookingModal()" class="flex items-center gap-2 bg-admin-accent text-admin-bg font-bold px-4 py-2.5 rounded-xl hover:bg-emerald-300 transition-colors">
+                <i class="ph-bold ph-plus text-lg"></i> <span class="hidden sm:inline">Nueva Cita</span>
+              </button>
+            </div>
             <div class="flex items-center gap-4">
                <button onclick="changeAdminDate(-1)" class="w-11 h-11 rounded-lg bg-admin-card border border-admin-border hover:bg-admin-border flex items-center justify-center transition-colors"><i class="ph-bold ph-caret-left text-lg"></i></button>
                <p class="text-admin-accent font-bold px-4 py-2 bg-admin-card border border-admin-border rounded-lg text-base" id="adminDateText">Cargando...</p>
@@ -149,6 +172,18 @@
                         <!-- Generados por JS -->
                    </div>
                </div>
+               
+              <!-- Teléfono de Recepción WhatsApp -->
+               <div class="bg-admin-card border border-admin-border rounded-2xl p-6 md:col-span-2">
+                   <h3 class="font-bold text-white mb-2 flex items-center gap-2"><i class="ph ph-whatsapp-logo text-[#25D366]"></i> WhatsApp de Contacto</h3>
+                   <p class="text-sm text-gray-400 mb-6">Número al que los clientes enviarán la confirmación de la cita desde la pantalla de éxito.</p>
+                   
+                   <div class="flex flex-col sm:flex-row gap-3">
+                       <input type="text" id="config-tel" placeholder="ej. 56912345678" class="flex-1 bg-admin-bg border border-admin-border rounded-xl px-4 py-4 text-base text-white focus:outline-none focus:border-admin-accent min-h-[48px]">
+                       <button onclick="guardarTelefono()" class="bg-admin-accent text-admin-bg font-bold px-8 py-4 rounded-xl hover:bg-emerald-300 transition-colors">Guardar Número</button>
+                   </div>
+               </div>
+
           </div>
       </div>
 
@@ -256,13 +291,20 @@
                     <div class="bg-admin-bg border border-admin-border rounded-xl px-4 py-2 font-bold text-admin-accent shrink-0">${b.hora}</div>
                     <div>
                       <h4 class="font-bold text-lg text-white mb-0.5">${b.clienteNombre}</h4>
+                      <div class="flex flex-col gap-1 mt-1 mb-2">
+                        ${b.clienteTelefono ? `<div class="flex items-center gap-1 text-xs text-gray-500"><i class="ph ph-phone"></i><span>${b.clienteTelefono}</span></div>` : ''}
+                        ${b.clienteEmail ? `<div class="flex items-center gap-1 text-xs text-gray-500"><i class="ph ph-envelope"></i><span>${b.clienteEmail}</span></div>` : ''}
+                      </div>
                       <div class="flex items-center gap-3 text-sm text-gray-400 font-medium">
                         <span class="flex items-center gap-1"><i class="ph ph-scissors"></i> ${b.servicioNombre} ${b.duracionServicio ? '('+b.duracionServicio+'m)' : ''}</span>
                         <a href="https://wa.me/${encodeURIComponent((b.clienteTelefono||'').replace(/\\D/g, ''))}?text=${encodeURIComponent('Hola ' + b.clienteNombre + ', confirmo tu hora para hoy a las ' + b.hora)}" target="_blank" class="flex items-center gap-1 text-admin-accent hover:underline"><i class="ph-fill ph-whatsapp-logo text-lg"></i> Contactar WP</a>
                       </div>
+                      <div class="mt-3 w-full max-w-sm">
+                        <textarea onblur="DB.updateBookingNote('${b.id}', this.value)" placeholder="Escribe una nota interna para este paciente..." class="w-full bg-black/20 border border-admin-border/50 rounded-xl px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-admin-accent resize-none transition-colors">${b.nota || ''}</textarea>
+                      </div>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 mt-4 sm:mt-0 shrink-0">
                     <button onclick="cancelarCita('${b.id}')" class="bg-admin-bg border border-admin-border text-red-400 hover:bg-red-500/10 font-semibold px-5 py-3 rounded-xl transition-all min-h-[44px]">Cancelar</button>
                   </div>
                 </div>`;
@@ -317,6 +359,7 @@
     function loadConfig() {
         const set = DB.getSettings();
         document.getElementById('config-intervalo').value = set.intervaloMinutos.toString();
+        document.getElementById('config-tel').value = set.telefonoAdmin || '';
         
         const daysDiv = document.getElementById('configDaysDiv');
         daysDiv.innerHTML = '';
@@ -363,13 +406,166 @@
         alert("Nota: Las citas existentes en la agenda seguirán siendo visibles, pero los nuevos clientes solo verán bloques de " + val + " minutos en el formulario de reservas.");
     }
 
+    function guardarTelefono() {
+        let val = document.getElementById('config-tel').value.trim();
+        if (!val) return alert("Por favor ingresa un número de teléfono.");
+        DB.updateSettings({ telefonoAdmin: val });
+        alert("Número de WhatsApp actualizado correctamente.");
+    }
+
+    function loadMonthlyRevenue() {
+        const data = DB.getMonthlyRevenue();
+        document.getElementById('monthlyRevTotal').innerText = "$" + data.total.toLocaleString('es-CL');
+        document.getElementById('monthlyRevCount').innerText = data.count;
+    }
+
     // INIT EXTENDIDO
     window.addEventListener('DOMContentLoaded', () => {
+        loadMonthlyRevenue();
         loadBookings();
         loadServicesAdmin();
         loadConfig();
     });
 
+    // --- Lógica de Agendamiento Manual ---
+    function openManualBookingModal() {
+        document.getElementById('manualBookingModal').classList.remove('hidden');
+        document.getElementById('manualBookingModal').classList.add('flex');
+        
+        // Cargar servicios en el select
+        const srvs = DB.getServices();
+        const sel = document.getElementById('mb-servicio');
+        sel.innerHTML = '<option value="">Selecciona un servicio</option>';
+        srvs.forEach(s => {
+            sel.innerHTML += `<option value="${s.id}">${s.nombre} - $${s.precio.toLocaleString('es-CL')}</option>`;
+        });
+        
+        // Reset campos
+        document.getElementById('mb-fecha').value = '';
+        document.getElementById('mb-hora').innerHTML = '<option value="">Primero elige fecha y servicio</option>';
+        document.getElementById('mb-hora').disabled = true;
+        document.getElementById('mb-nombre').value = '';
+        document.getElementById('mb-telefono').value = '+569 ';
+        document.getElementById('mb-email').value = '';
+    }
+
+    function closeManualBookingModal() {
+        document.getElementById('manualBookingModal').classList.add('hidden');
+        document.getElementById('manualBookingModal').classList.remove('flex');
+    }
+
+    function handleMbDateOrServiceChange() {
+        const dateVal = document.getElementById('mb-fecha').value;
+        const srvId = document.getElementById('mb-servicio').value;
+        const hourSel = document.getElementById('mb-hora');
+        
+        if (!dateVal || !srvId) {
+            hourSel.innerHTML = '<option value="">Primero elige fecha y servicio</option>';
+            hourSel.disabled = true;
+            return;
+        }
+        
+        const srvs = DB.getServices();
+        const srvObj = srvs.find(s => String(s.id) === String(srvId));
+        if (!srvObj) return;
+        
+        const hours = DB.getAvailableHours(dateVal, srvObj.duracion);
+        hourSel.disabled = false;
+        hourSel.innerHTML = '<option value="">Selecciona una hora</option>';
+        
+        hours.forEach(h => {
+             if (h.occupied) {
+                 hourSel.innerHTML += `<option value="" disabled>${h.time} (Ocupado)</option>`;
+             } else {
+                 hourSel.innerHTML += `<option value="${h.time}">${h.time}</option>`;
+             }
+        });
+    }
+
+    function saveManualBooking() {
+        const dateVal = document.getElementById('mb-fecha').value;
+        const srvId = document.getElementById('mb-servicio').value;
+        const timeVal = document.getElementById('mb-hora').value;
+        const nombre = document.getElementById('mb-nombre').value.trim();
+        const tel = document.getElementById('mb-telefono').value.trim();
+        const email = document.getElementById('mb-email').value.trim();
+        
+        if(!dateVal || !srvId || !timeVal || !nombre) {
+            return alert("Por favor, completa al menos Fecha, Servicio, Hora y Nombre del Cliente.");
+        }
+        
+        const srvObj = DB.getServices().find(s => String(s.id) === String(srvId));
+        
+        DB.saveBooking({
+            fecha: dateVal,
+            hora: timeVal,
+            clienteNombre: nombre,
+            clienteTelefono: tel === '+569 ' ? '' : tel,
+            clienteEmail: email,
+            servicioNombre: srvObj.nombre,
+            duracionServicio: srvObj.duracion
+        });
+        
+        closeManualBookingModal();
+        loadBookings();
+        loadMonthlyRevenue();
+        alert("Cita manual agendada exitosamente.");
+    }
   </script>
+
+  <!-- Modal Agendamiento Manual -->
+  <div id="manualBookingModal" class="hidden fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-admin-card border border-admin-border w-full max-w-lg rounded-3xl shadow-2xl p-6 sm:p-8 relative max-h-[90dvh] overflow-y-auto">
+        <button onclick="closeManualBookingModal()" class="absolute top-6 right-6 text-gray-400 hover:text-white transition-colors">
+            <i class="ph-bold ph-x text-2xl"></i>
+        </button>
+        
+        <h2 class="text-2xl font-bold text-white mb-6">Agendar Nueva Cita</h2>
+        
+        <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-400 mb-2">Fecha <span class="text-admin-accent">*</span></label>
+                    <input type="date" id="mb-fecha" onchange="handleMbDateOrServiceChange()" class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent block" style="color-scheme: dark;">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-400 mb-2">Servicio <span class="text-admin-accent">*</span></label>
+                    <select id="mb-servicio" onchange="handleMbDateOrServiceChange()" class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent">
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-bold text-gray-400 mb-2">Hora Bloque <span class="text-admin-accent">*</span></label>
+                <select id="mb-hora" disabled class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent disabled:opacity-50 disabled:cursor-not-allowed">
+                    <option value="">Primero elige fecha y servicio</option>
+                </select>
+            </div>
+            
+            <hr class="border-admin-border my-2">
+            
+            <div>
+                <label class="block text-sm font-bold text-gray-400 mb-2">Nombre del Cliente <span class="text-admin-accent">*</span></label>
+                <input type="text" id="mb-nombre" placeholder="Nombre completo" class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-400 mb-2">Teléfono <span class="text-xs font-normal text-gray-500">(Opcional)</span></label>
+                    <input type="tel" id="mb-telefono" value="+569 " class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-400 mb-2">Email <span class="text-xs font-normal text-gray-500">(Opcional)</span></label>
+                    <input type="email" id="mb-email" placeholder="ejemplo@correo.com" class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent">
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-admin-border">
+                <button onclick="closeManualBookingModal()" class="px-6 bg-transparent text-gray-400 font-bold py-3.5 rounded-xl hover:text-white transition-colors">Cancelar</button>
+                <button onclick="saveManualBooking()" class="px-8 bg-admin-accent text-admin-bg font-bold py-3.5 rounded-xl hover:bg-emerald-300 transition-colors">Crear Cita</button>
+            </div>
+        </div>
+    </div>
+  </div>
 </body>
 </html>

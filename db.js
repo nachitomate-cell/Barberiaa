@@ -3,7 +3,8 @@ const defaultSettings = {
     horarioInicio: "10:00",
     horarioFin: "19:00",
     intervaloMinutos: 30,
-    diasLaborales: [1, 2, 3, 4, 5, 6] // Lun a Sab
+    diasLaborales: [1, 2, 3, 4, 5, 6], // Lun a Sab
+    telefonoAdmin: "56900000000" // WhatsApp Receptor
 };
 
 const defaultServices = [
@@ -74,6 +75,35 @@ const DB = {
             bookings[index].estado = status;
             localStorage.setItem('barber_bookings', JSON.stringify(bookings));
         }
+    },
+
+    updateBookingNote: (bookingId, noteText) => {
+        const bookings = DB.getBookings();
+        const index = bookings.findIndex(b => String(b.id) === String(bookingId));
+        if (index > -1) {
+            bookings[index].nota = noteText;
+            localStorage.setItem('barber_bookings', JSON.stringify(bookings));
+        }
+    },
+
+    getMonthlyRevenue: () => {
+        const bookings = DB.getBookings();
+        const now = new Date();
+        const currentYearMonth = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}`;
+        
+        let totalRev = 0;
+        let count = 0;
+        const allServices = DB.getServices();
+        
+        bookings.forEach(b => {
+            if (b.estado === "Confirmado" && b.fecha.startsWith(currentYearMonth)) {
+                count++;
+                const srv = allServices.find(s => s.nombre === b.servicioNombre);
+                if (srv) totalRev += srv.precio;
+            }
+        });
+        
+        return { total: totalRev, count: count };
     },
     
     getAvailableHours: (dateStr, newServiceDuration) => {
