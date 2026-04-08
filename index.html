@@ -1,579 +1,259 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>App Barbería</title>
-<style>
-:root {
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f4f5f7;
-  --color-border-primary: #333333;
-  --color-border-secondary: #d1d5db;
-  --color-border-tertiary: #e5e7eb;
-  --color-text-primary: #111827;
-  --color-text-secondary: #4b5563;
-  --color-text-tertiary: #9ca3af;
-  --border-radius-md: 12px;
-  --border-radius-lg: 20px;
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-*{box-sizing:border-box;margin:0;padding:0}
-body { background-color: #f9fafb; display: flex; justify-content: center; }
-.app{width:100%; max-width:430px; min-height: 100vh; background:var(--color-background-primary); font-family:var(--font-sans); padding-bottom:2rem; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
-
-/* Transiciones suaves entre pantallas */
-.screen{display:none; opacity: 0; animation: fadeIn 0.3s ease forwards;}
-.screen.active{display:block}
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-.topbar{display:flex;align-items:center;gap:10px;padding:1rem 1rem 0.5rem}
-.back-btn{width:32px;height:32px;border-radius:50%;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--color-text-secondary);flex-shrink:0}
-.topbar-title{font-size:16px;font-weight:500;color:var(--color-text-primary)}
-.hero{padding:1.25rem 1rem 0.75rem}
-.hero h1{font-size:22px;font-weight:500;color:var(--color-text-primary)}
-.hero p{font-size:14px;color:var(--color-text-secondary);margin-top:3px}
-.section-label{font-size:11px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.07em;padding:0 1rem;margin:1.5rem 0 0.5rem}
-.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500}
-.pill-green{background:#E1F5EE;color:#085041}
-.pill-amber{background:#FAEEDA;color:#633806}
-.pill-red{background:#FCEBEB;color:#791F1F}
-.pill-gray{background:var(--color-background-secondary);color:var(--color-text-secondary)}
-.card{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin:0 1rem .75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
-.card-sm{padding:.75rem 1rem;margin:0 1rem .5rem}
-.primary-btn{display:block;width:calc(100% - 2rem);margin:0 1rem .75rem;padding:14px;background:#1D9E75;color:white;border:none;border-radius:var(--border-radius-md);font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font-sans);text-align:center; transition: background 0.2s;}
-.primary-btn:hover{background:#0F6E56}
-.primary-btn:disabled{background:var(--color-background-secondary);color:var(--color-text-tertiary);cursor:default}
-.ghost-btn{display:block;width:calc(100% - 2rem);margin:0 1rem .75rem;padding:13px;background:transparent;color:var(--color-text-primary);border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--font-sans);text-align:center}
-.ghost-btn:hover{background:var(--color-background-secondary)}
-.service-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 1rem}
-.svc-card{border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;cursor:pointer;background:var(--color-background-primary);transition:all .2s}
-.svc-card:hover{border-color:var(--color-border-secondary)}
-.svc-card.sel{border:2px solid #1D9E75;background:#E1F5EE}
-.svc-card .ico{font-size:24px;margin-bottom:8px}
-.svc-card .name{font-size:14px;font-weight:600;color:var(--color-text-primary)}
-.svc-card .meta{font-size:12px;color:var(--color-text-secondary);margin-top:4px}
-.svc-card.sel .name{color:#085041}
-.svc-card.sel .meta{color:#0F6E56}
-.days-strip{display:flex;gap:8px;padding:0 1rem;overflow-x:auto;padding-bottom:8px; scrollbar-width: none;}
-.days-strip::-webkit-scrollbar { display: none; }
-.day-btn{flex-shrink:0;width:56px;padding:10px 4px;border-radius:var(--border-radius-md);border:1px solid var(--color-border-tertiary);background:var(--color-background-primary);cursor:pointer;text-align:center; transition: all 0.2s;}
-.day-btn.sel{background:#1D9E75;border-color:#0F6E56}
-.day-btn .dn{font-size:11px;color:var(--color-text-secondary); font-weight:500}
-.day-btn .dd{font-size:18px;font-weight:600;color:var(--color-text-primary);margin:2px 0}
-.day-btn .dm{font-size:11px;color:var(--color-text-tertiary)}
-.day-btn.sel .dn,.day-btn.sel .dd,.day-btn.sel .dm{color:white}
-.times-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 1rem; margin-bottom: 1.5rem;}
-.time-btn{padding:12px 4px;border-radius:var(--border-radius-md);border:1px solid var(--color-border-tertiary);background:var(--color-background-primary);cursor:pointer;text-align:center;font-size:14px;font-weight:500;color:var(--color-text-primary)}
-.time-btn.sel{background:#1D9E75;border-color:#0F6E56;color:white}
-.time-btn.booked{background:var(--color-background-secondary);color:var(--color-text-tertiary);pointer-events:none;text-decoration:line-through; border-color: transparent;}
-.time-btn.waitlist{background:#FAEEDA;border-color:#EF9F27;color:#633806;font-size:12px}
-.inp-wrap{padding:0 1rem;margin-bottom:1rem}
-.inp-wrap label{display:block;font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px}
-.inp-wrap input{width:100%;padding:12px 14px;border-radius:var(--border-radius-md);border:1px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:15px;font-family:var(--font-sans)}
-.inp-wrap input:focus{outline:none;border-color:#1D9E75; box-shadow: 0 0 0 3px #E1F5EE;}
-.otp-row{display:flex;gap:10px;padding:0 1rem; justify-content: center;}
-.otp-row input{width:56px;height:64px;text-align:center;font-size:24px;font-weight:600;border-radius:var(--border-radius-md);border:1px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans)}
-.otp-row input:focus{outline:none;border-color:#1D9E75;box-shadow: 0 0 0 3px #E1F5EE;}
-.social-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:calc(100% - 2rem);margin:0 1rem .75rem;padding:12px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);font-size:14px;font-weight:500;color:var(--color-text-primary);cursor:pointer;font-family:var(--font-sans)}
-.social-btn:hover{background:var(--color-background-secondary)}
-.lookbook-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 1rem}
-.lb-card{border-radius:var(--border-radius-md);overflow:hidden;border:1px solid var(--color-border-tertiary);cursor:pointer;position:relative; background: var(--color-background-primary);}
-.lb-card.sel{border:2px solid #1D9E75}
-.lb-img{width:100%;height:110px;display:flex;align-items:center;justify-content:center;font-size:38px}
-.lb-label{padding:8px 10px;font-size:13px;font-weight:500;color:var(--color-text-secondary); text-align: center;}
-.lb-badge{position:absolute;top:8px;right:8px;background:#1D9E75;color:white;font-size:12px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:50%}
-.booking-row{display:flex;align-items:center;gap:14px;padding:1rem 0;border-bottom:1px solid var(--color-border-tertiary)}
-.booking-row:last-child{border-bottom:none; padding-bottom: 0;}
-.booking-row:first-child{padding-top: 0;}
-.booking-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.dot-green{background:#1D9E75}.dot-red{background:#E24B4A}.dot-amber{background:#EF9F27}
-.booking-info{flex:1}
-.booking-info .bi-title{font-size:15px;font-weight:600;color:var(--color-text-primary)}
-.booking-info .bi-sub{font-size:13px;color:var(--color-text-secondary);margin-top:4px}
-.action-mini{font-size:13px;font-weight:500;color:#1D9E75;cursor:pointer;white-space:nowrap; padding: 4px 0;}
-.action-mini.danger{color:#E24B4A}
-.steps-bar{display:flex;align-items:center;gap:8px;padding:1rem}
-.step-dot{width:8px;height:8px;border-radius:50%;background:var(--color-border-tertiary);transition:all .3s}
-.step-dot.done{background:#1D9E75}
-.step-dot.active{background:#1D9E75;width:24px;border-radius:4px}
-.step-label{font-size:13px;font-weight:500;color:var(--color-text-secondary); margin-left: 4px;}
-.success-wrap{padding:3rem 1.5rem;text-align:center}
-.success-ico{font-size:56px;margin-bottom:1.5rem}
-.success-wrap h2{font-size:24px;font-weight:600;color:var(--color-text-primary);margin-bottom:.75rem}
-.success-wrap p{font-size:15px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:2rem}
-.cal-row{display:flex;gap:10px;padding:0 1rem;margin-bottom:1rem}
-.cal-btn{flex:1;padding:12px;border-radius:var(--border-radius-md);border:1px solid var(--color-border-secondary);background:var(--color-background-primary);font-size:13px;font-weight:500;color:var(--color-text-primary);cursor:pointer;text-align:center;font-family:var(--font-sans)}
-.notif-card{background:#E1F5EE;border:1px solid #5DCAA5;border-radius:var(--border-radius-md);padding:1rem;margin:0 1rem 1rem}
-.notif-card p{font-size:14px;color:#085041;line-height:1.5}
-.waitlist-banner{background:#FAEEDA;border:1px solid #EF9F27;border-radius:var(--border-radius-md);padding:1rem;margin:0 1rem 1.5rem;font-size:14px;color:#633806;line-height:1.5}
-.tab-bar{display:flex;border-bottom:1px solid var(--color-border-tertiary);margin:0 1rem 1rem}
-.tab{flex:1;padding:12px 4px;text-align:center;font-size:14px;font-weight:500;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent; transition: all 0.2s;}
-.tab.active{color:#1D9E75;border-bottom-color:#1D9E75;}
-.nav-bar{display:flex;border-top:1px solid var(--color-border-tertiary);margin-top:2rem; background: var(--color-background-primary); position: sticky; bottom: 0; padding-bottom: 1rem;}
-.nav-item{flex:1;padding:14px 4px;text-align:center;cursor:pointer;font-size:11px;font-weight:500;color:var(--color-text-secondary)}
-.nav-item.active{color:#1D9E75;}
-.nav-ico{font-size:20px;display:block;margin-bottom:4px}
-.repeat-card{background:var(--color-background-primary);border:2px solid #1D9E75;border-radius:var(--border-radius-lg);padding:1.25rem;margin:0 1rem 1rem;display:flex;align-items:center;gap:14px;cursor:pointer; box-shadow: 0 4px 12px rgba(29, 158, 117, 0.15); transition: transform 0.2s;}
-.repeat-card:active{transform: scale(0.98);}
-.repeat-ico{font-size:28px;flex-shrink:0}
-.repeat-info .ri-title{font-size:15px;font-weight:600;color:#085041}
-.repeat-info .ri-sub{font-size:13px;color:#0F6E56;margin-top:4px}
-.avatar{width:42px;height:42px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:#085041;flex-shrink:0}
-
-/* Modales personalizados */
-.sys-modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:999; align-items:center; justify-content:center; padding: 1rem; opacity: 0; transition: opacity 0.2s ease; }
-.sys-modal-overlay.active { display:flex; opacity: 1; }
-.sys-modal { background:var(--color-background-primary); border-radius:var(--border-radius-lg); padding:1.5rem; width:100%; max-width:340px; text-align:center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transform: scale(0.95); transition: transform 0.2s ease; }
-.sys-modal-overlay.active .sys-modal { transform: scale(1); }
-.sys-modal-title { font-size:18px; font-weight:600; margin-bottom:.75rem; color: var(--color-text-primary); }
-.sys-modal-text { font-size:14px; color:var(--color-text-secondary); margin-bottom:1.5rem; line-height: 1.5; }
-.sys-modal-actions { display:flex; gap:10px; }
-.sys-modal-btn { flex:1; padding:12px; border-radius:var(--border-radius-md); font-size:14px; font-weight:600; cursor:pointer; border:none; font-family: var(--font-sans); }
-.sys-modal-btn.cancel { background:var(--color-background-secondary); color:var(--color-text-primary); }
-.sys-modal-btn.confirm { background:#1D9E75; color:white; }
-.sys-modal-btn.danger { background:#E24B4A; color:white; }
-</style>
-</head>
-<body>
-
-<div class="app">
-
-<div id="s-login" class="screen active">
-  <div class="hero" style="padding-top:3rem;text-align:center; margin-bottom: 2rem;">
-    <div style="font-size:48px;margin-bottom:1rem">✂️</div>
-    <h1 style="font-size:28px;">Barbería</h1>
-    <p style="font-size: 16px;">Reserva tu hora en segundos</p>
-  </div>
-  <button class="social-btn" onclick="go('s-otp')">
-    <svg style="width:20px;height:20px" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
-    Continuar con Google
-  </button>
-  <button class="social-btn" onclick="go('s-otp')">
-    <svg style="width:20px;height:20px" viewBox="0 0 18 18"><path fill="var(--color-text-primary)" d="M15.07 13.64c-.3.69-.65 1.33-1.05 1.92-.55.78-1 1.31-1.34 1.59-.54.49-1.11.74-1.73.75-.44 0-.98-.12-1.6-.38-.62-.25-1.19-.38-1.72-.38-.55 0-1.14.13-1.76.38-.62.26-1.12.39-1.5.4-.59.03-1.18-.23-1.76-.77-.38-.3-.84-.85-1.39-1.65-.59-.86-1.08-1.85-1.46-2.99C.26 11.32 0 10.12 0 8.96c0-1.32.29-2.45.86-3.39a5.06 5.06 0 011.8-1.82A4.84 4.84 0 015.1 3.3c.47 0 1.08.14 1.85.43.76.29 1.25.43 1.46.43.16 0 .7-.17 1.6-.5.86-.31 1.58-.44 2.17-.4 1.6.13 2.81.76 3.6 1.9-1.43.87-2.14 2.08-2.13 3.64.01 1.22.45 2.23 1.32 3.03.39.37.83.66 1.32.86l-.33.95zM11.58.36c0 .95-.35 1.84-1.04 2.67-.83.97-1.84 1.53-2.93 1.44-.01-.11-.02-.23-.02-.35 0-.92.4-1.9 1.1-2.7.35-.4.8-.74 1.33-1.01.54-.27 1.04-.42 1.52-.44.01.13.02.26.02.39z"/></svg>
-    Continuar con Apple
-  </button>
-  <div style="display:flex;align-items:center;gap:12px;padding:0 1rem;margin:1.5rem 0 1rem">
-    <div style="flex:1;height:1px;background:var(--color-border-tertiary)"></div>
-    <span style="font-size:13px;color:var(--color-text-tertiary)">o con tu número</span>
-    <div style="flex:1;height:1px;background:var(--color-border-tertiary)"></div>
-  </div>
-  <div class="inp-wrap">
-    <label>WhatsApp o celular</label>
-    <input type="tel" placeholder="+56 9 1234 5678" />
-  </div>
-  <button class="primary-btn" onclick="go('s-otp')">Enviar código</button>
-</div>
-
-<div id="s-otp" class="screen">
-  <div class="topbar"><button class="back-btn" onclick="go('s-login')">←</button><span class="topbar-title">Verificar número</span></div>
-  <div style="padding:1.5rem 1rem 1.5rem">
-    <p style="font-size:15px;color:var(--color-text-secondary);line-height:1.6">Ingresa el código de 4 dígitos enviado a tu WhatsApp</p>
-  </div>
-  <div class="otp-row" style="margin-bottom:2rem">
-    <input type="text" inputmode="numeric" maxlength="1" class="otp-input" />
-    <input type="text" inputmode="numeric" maxlength="1" class="otp-input" />
-    <input type="text" inputmode="numeric" maxlength="1" class="otp-input" />
-    <input type="text" inputmode="numeric" maxlength="1" class="otp-input" />
-  </div>
-  <button class="primary-btn" onclick="loginSuccess()">Verificar e Ingresar</button>
-  <p style="text-align:center;font-size:14px;color:var(--color-text-secondary);cursor:pointer; margin-top: 1rem;">Reenviar código en <span id="otp-timer" style="color:#1D9E75;font-weight:600">0:30</span></p>
-</div>
-
-<div id="s-home" class="screen">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.25rem 0.5rem">
-    <div>
-      <p style="font-size:14px;color:var(--color-text-secondary)">Hola de nuevo</p>
-      <h1 style="font-size:22px;font-weight:600;color:var(--color-text-primary)">Matías González</h1>
-    </div>
-    <div class="avatar">MG</div>
-  </div>
-
-  <div class="repeat-card" style="margin-top: 1.5rem;" onclick="repeatBooking()">
-    <div class="repeat-ico">🔁</div>
-    <div class="repeat-info">
-      <div class="ri-title">Agendar lo mismo de la última vez</div>
-      <div class="ri-sub">Corte + barba · hace 3 semanas</div>
-    </div>
-  </div>
-
-  <div class="section-label">Próximas citas</div>
-  <div class="card">
-    <div class="booking-row">
-      <div class="booking-dot dot-green"></div>
-      <div class="booking-info">
-        <div class="bi-title">Corte + barba</div>
-        <div class="bi-sub">Jue 10 abr · 14:00 · $12.000</div>
-      </div>
-      <div style="text-align: right;">
-        <div class="action-mini" onclick="showReschedule()">Reagendar</div>
-        <div class="action-mini danger" onclick="showCancel()">Cancelar</div>
-      </div>
-    </div>
-    <div class="booking-row">
-      <div class="booking-dot dot-amber"></div>
-      <div class="booking-info">
-        <div class="bi-title">En lista de espera</div>
-        <div class="bi-sub">Mar 8 abr · cualquier hora</div>
-      </div>
-      <div class="action-mini danger" onclick="showSysModal('Salir de lista', '¿Quieres salir de la lista de espera del Martes 8?', 'danger', ()=> { closeSysModal(); })">Salir</div>
-    </div>
-  </div>
-
-  <div class="nav-bar">
-    <div class="nav-item active" onclick="go('s-home')"><span class="nav-ico">🏠</span>Inicio</div>
-    <div class="nav-item" onclick="go('s-book-svc')"><span class="nav-ico">📅</span>Reservar</div>
-    <div class="nav-item" onclick="go('s-lookbook')"><span class="nav-ico">📸</span>Lookbook</div>
-    <div class="nav-item" onclick="go('s-history')"><span class="nav-ico">🕑</span>Historial</div>
-  </div>
-</div>
-
-<div id="s-book-svc" class="screen">
-  <div class="topbar"><button class="back-btn" onclick="go('s-home')">←</button><span class="topbar-title">Reservar hora</span></div>
-  <div class="steps-bar">
-    <div class="step-dot active" id="sp1"></div>
-    <div class="step-dot" id="sp2"></div>
-    <div class="step-dot" id="sp3"></div>
-    <span class="step-label">Paso 1 de 3 — elige el servicio</span>
-  </div>
-  <div class="service-grid" id="svc-grid" style="margin-top: 0.5rem; margin-bottom: 1.5rem;">
-    <div class="svc-card" onclick="selectSvc(this,'Corte',25,'✂️')">
-      <div class="ico">✂️</div><div class="name">Corte</div><div class="meta">25 min · $8.000</div>
-    </div>
-    <div class="svc-card" onclick="selectSvc(this,'Barba',20,'🪒')">
-      <div class="ico">🪒</div><div class="name">Barba</div><div class="meta">20 min · $6.000</div>
-    </div>
-    <div class="svc-card" onclick="selectSvc(this,'Corte + barba',45,'💈')">
-      <div class="ico">💈</div><div class="name">Corte + barba</div><div class="meta">45 min · $12.000</div>
-    </div>
-    <div class="svc-card" onclick="selectSvc(this,'Perfilado',15,'✨')">
-      <div class="ico">✨</div><div class="name">Perfilado</div><div class="meta">15 min · $4.000</div>
-    </div>
-  </div>
-  <button class="primary-btn" id="svc-next-btn" disabled onclick="go('s-book-time')">Siguiente →</button>
-</div>
-
-<div id="s-book-time" class="screen">
-  <div class="topbar"><button class="back-btn" onclick="go('s-book-svc')">←</button><span class="topbar-title" id="time-topbar">Servicio</span></div>
-  <div class="steps-bar">
-    <div class="step-dot done"></div>
-    <div class="step-dot active"></div>
-    <div class="step-dot"></div>
-    <span class="step-label">Paso 2 de 3 — elige hora</span>
-  </div>
-  <div class="days-strip" id="days-strip" style="margin-top: 0.5rem;"></div>
-  <div class="section-label" id="time-day-label">Horarios disponibles</div>
-  <div class="times-grid" id="times-grid"></div>
-  <button class="primary-btn" id="time-next-btn" disabled onclick="go('s-book-confirm')">Siguiente →</button>
-</div>
-
-<div id="s-book-confirm" class="screen">
-  <div class="topbar"><button class="back-btn" onclick="go('s-book-time')">←</button><span class="topbar-title">Confirmar reserva</span></div>
-  <div class="steps-bar">
-    <div class="step-dot done"></div>
-    <div class="step-dot done"></div>
-    <div class="step-dot active"></div>
-    <span class="step-label">Paso 3 de 3 — confirmar</span>
-  </div>
-  <div class="card" id="confirm-summary" style="margin-top: 0.5rem;"></div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FAFAFA">
+  <title>Barbería Premium | Inicio</title>
   
-  <div class="notif-card">
-    <p>Te enviaremos un recordatorio por WhatsApp 24h y 2h antes de tu cita.</p>
-  </div>
-  <button class="primary-btn" onclick="confirmBooking()">Confirmar y reservar</button>
-</div>
-
-<div id="s-success" class="screen">
-  <div class="success-wrap">
-    <div class="success-ico">🎉</div>
-    <h2>¡Hora reservada!</h2>
-    <p id="success-detail">Corte + barba<br>Jue 10 abr · 14:00</p>
-    <div class="cal-row">
-      <button class="cal-btn" onclick="showSysModal('Calendario', 'Se descargará un archivo .ics para agregar a tu calendario.')">📅 Google Cal</button>
-      <button class="cal-btn" onclick="showSysModal('Calendario', 'Se descargará un archivo .ics para agregar a tu calendario.')">🍎 Apple Cal</button>
-    </div>
-    <button class="ghost-btn" style="margin-top: 1rem;" onclick="go('s-home')">Volver al inicio</button>
-  </div>
-</div>
-
-<div id="s-lookbook" class="screen">
-  <div class="topbar"><button class="back-btn" onclick="go('s-home')">←</button><span class="topbar-title">Lookbook</span></div>
-  <p style="padding:1rem 1.25rem;font-size:14px;color:var(--color-text-secondary)">Selecciona un estilo y te sugerimos el servicio correspondiente.</p>
-  <div class="lookbook-grid" id="lb-grid">
-    <div class="lb-card" onclick="selectLook(this,'Corte clásico','Corte')">
-      <div class="lb-img" style="background:#E1F5EE">💈</div>
-      <div class="lb-label">Corte clásico</div>
-    </div>
-    <div class="lb-card" onclick="selectLook(this,'Fade + barba','Corte + barba')">
-      <div class="lb-img" style="background:#FAEEDA">✂️</div>
-      <div class="lb-label">Fade + barba</div>
-    </div>
-    <div class="lb-card" onclick="selectLook(this,'Barba perfilada','Barba')">
-      <div class="lb-img" style="background:#FAECE7">🪒</div>
-      <div class="lb-label">Barba perfilada</div>
-    </div>
-    <div class="lb-card" onclick="selectLook(this,'Undercut moderno','Corte')">
-      <div class="lb-img" style="background:#EEEDFE">💇♂️</div>
-      <div class="lb-label">Undercut moderno</div>
-    </div>
-  </div>
-  <div id="lb-suggestion" style="display:none;padding:0 1rem;margin-top:1.5rem">
-    <div class="notif-card"><p id="lb-sug-text"></p></div>
-    <button class="primary-btn" style="margin:0; width: 100%;" onclick="goFromLook()">Reservar este servicio</button>
-  </div>
-</div>
-
-<div id="s-history" class="screen">
-  <div class="topbar"><button class="back-btn" onclick="go('s-home')">←</button><span class="topbar-title">Historial</span></div>
-  <div class="tab-bar">
-    <div class="tab active" onclick="switchTab(this,'th-done')">Realizadas</div>
-    <div class="tab" onclick="switchTab(this,'th-cancelled')">Canceladas</div>
-  </div>
-  <div id="th-done">
-    <div class="card">
-      <div class="booking-row">
-        <div class="booking-dot dot-green"></div>
-        <div class="booking-info"><div class="bi-title">Corte + barba</div><div class="bi-sub">Mar 18 mar · 15:00</div></div>
-        <span class="pill pill-green">Asistió</span>
-      </div>
-      <div class="booking-row">
-        <div class="booking-dot dot-red"></div>
-        <div class="booking-info"><div class="bi-title">Barba</div><div class="bi-sub">Vie 14 feb · 10:30</div></div>
-        <span class="pill pill-red">No-show</span>
-      </div>
-    </div>
-  </div>
-  <div id="th-cancelled" style="display:none">
-    <div class="card">
-      <div class="booking-row">
-        <div class="booking-dot dot-amber"></div>
-        <div class="booking-info"><div class="bi-title">Corte</div><div class="bi-sub">Sáb 22 feb · 13:00</div></div>
-        <span class="pill pill-amber">Canceló</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="sys-modal-wrap" class="sys-modal-overlay">
-  <div class="sys-modal">
-    <div id="sm-title" class="sys-modal-title">Título</div>
-    <div id="sm-text" class="sys-modal-text">Mensaje</div>
-    <div class="sys-modal-actions">
-      <button id="sm-cancel" class="sys-modal-btn cancel">Cancelar</button>
-      <button id="sm-confirm" class="sys-modal-btn confirm">Entendido</button>
-    </div>
-  </div>
-</div>
-
-</div>
-
-<script>
-// Datos mock
-const DAYS_ES=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-const MONTHS_ES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-const HOURS=['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
-const BOOKED={'default':['11:00','14:00','16:00'],'full':HOURS.slice()};
-
-// Manejo de estado
-let state={svc:null,svcDur:0,day:null,time:null,lookSvc:null};
-let timerInterval=null;
-
-// Navegación
-function go(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  if(id==='s-book-time') renderTimeScreen();
-  if(id==='s-book-confirm') renderConfirm();
-  if(id==='s-home') resetState(); // Limpiar estado al volver a home
-}
-
-function resetState() {
-  state={svc:null,svcDur:0,day:null,time:null,lookSvc:null};
-  document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('sel'));
-  document.getElementById('svc-next-btn').disabled=true;
-  document.getElementById('time-next-btn').disabled=true;
-}
-
-// Lógica de OTP Mejorada (Auto-foco, borrado y paste)
-const otpInputs = document.querySelectorAll('.otp-input');
-otpInputs.forEach((input, index) => {
-  input.addEventListener('input', (e) => {
-    if (e.target.value.length > 0) {
-      e.target.value = e.target.value.replace(/[^0-9]/g, '');
-      if (e.target.value !== '' && index < otpInputs.length - 1) {
-        otpInputs[index + 1].focus();
+  <!-- Phosphor Icons (Minimalist elegant icons) -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#FAFAFA',
+              text: '#111827',
+              accent: '#10B981',
+              accentDark: '#047857'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'fade-slide-up': 'fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          },
+          keyframes: {
+            fadeSlideUp: {
+              '0%': { opacity: '0', transform: 'translateY(24px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
       }
     }
-  });
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
-      otpInputs[index - 1].focus();
+  </script>
+
+  <style>
+    body {
+      background-color: #FAFAFA;
+      color: #111827;
+      /* Prevent pull-to-refresh on mobile for a more app-like feel */
+      overscroll-behavior-y: none;
+      -webkit-tap-highlight-color: transparent;
     }
-  });
-  input.addEventListener('paste', (e) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 4);
-    if (pastedData.length > 0) {
-      otpInputs.forEach((inp, i) => { if (pastedData[i]) inp.value = pastedData[i]; });
-      otpInputs[Math.min(pastedData.length - 1, 3)].focus();
+    
+    /* Glassmorphism for Navbar */
+    .glass-nav {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
     }
-  });
-});
+    
+    /* Animation Delays for staggered entrance */
+    .delay-100 { animation-delay: 100ms; }
+    .delay-200 { animation-delay: 200ms; }
+    .delay-300 { animation-delay: 300ms; }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen pb-32 selection:bg-brand-accent selection:text-white">
 
-function loginSuccess(){ go('s-home'); }
-
-function startOTPTimer(){
-  let sec=30;
-  clearInterval(timerInterval);
-  timerInterval=setInterval(()=>{
-    sec--;document.getElementById('otp-timer').textContent='0:'+String(sec).padStart(2,'0');
-    if(sec<=0){clearInterval(timerInterval);document.getElementById('otp-timer').textContent='Reenviar';}
-  },1000);
-}
-
-// Modales Sistema
-function showSysModal(title, text, type='alert', onConfirm=null) {
-  document.getElementById('sm-title').textContent = title;
-  document.getElementById('sm-text').textContent = text;
-  const btnConfirm = document.getElementById('sm-confirm');
-  const btnCancel = document.getElementById('sm-cancel');
-  
-  btnConfirm.className = 'sys-modal-btn ' + (type === 'danger' ? 'danger' : 'confirm');
-  btnCancel.style.display = type === 'alert' ? 'none' : 'block';
-  
-  btnConfirm.onclick = () => { closeSysModal(); if(onConfirm) onConfirm(); };
-  btnCancel.onclick = closeSysModal;
-  
-  document.getElementById('sys-modal-wrap').classList.add('active');
-}
-function closeSysModal() { document.getElementById('sys-modal-wrap').classList.remove('active'); }
-
-// Flujo de Reserva
-function selectSvc(el,name,dur,ico){
-  document.querySelectorAll('.svc-card').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');
-  state.svc=name;state.svcDur=dur;state.svcIco=ico;
-  document.getElementById('svc-next-btn').disabled=false;
-}
-
-function getNext10Days(){
-  const days=[],today=new Date();today.setHours(0,0,0,0);
-  for(let i=0;i<14;i++){const d=new Date(today);d.setDate(today.getDate()+i);if(d.getDay()!==0)days.push(d);if(days.length===10)break;}
-  return days;
-}
-
-function renderTimeScreen(){
-  document.getElementById('time-topbar').textContent=(state.svc||'Servicio')+' · '+state.svcDur+' min';
-  const strip=document.getElementById('days-strip');strip.innerHTML='';
-  getNext10Days().forEach((d,i)=>{
-    const btn=document.createElement('button');btn.className='day-btn'+(state.day&&state.day.toDateString()===d.toDateString()?' sel':'');
-    btn.innerHTML=`<div class="dn">${DAYS_ES[d.getDay()]}</div><div class="dd">${d.getDate()}</div><div class="dm">${MONTHS_ES[d.getMonth()]}</div>`;
-    btn.onclick=()=>{state.day=d;state.time=null;document.getElementById('time-next-btn').disabled=true;renderTimeScreen();};
-    strip.appendChild(btn);
-    if(i===0&&!state.day){state.day=d;btn.classList.add('sel');}
-  });
-  renderHours();
-}
-
-function renderHours(){
-  const grid=document.getElementById('times-grid');grid.innerHTML='';
-  const label=document.getElementById('time-day-label');
-  if(!state.day){label.textContent='Elige un día primero';return;}
-  
-  label.textContent=DAYS_ES[state.day.getDay()]+' '+state.day.getDate()+' '+MONTHS_ES[state.day.getMonth()];
-  const isFull=state.day.getDay()===5; // Simula viernes lleno
-  const booked=isFull?BOOKED.full:BOOKED.default;
-  let available=0;
-  
-  HOURS.forEach(h=>{
-    const isBooked=booked.includes(h);
-    if(!isBooked)available++;
-    const btn=document.createElement('button');
-    btn.className='time-btn'+(state.time===h?' sel':'')+(isBooked?' booked':'');
-    btn.textContent=h;
-    if(!isBooked)btn.onclick=()=>{state.time=h;document.getElementById('time-next-btn').disabled=false;renderHours();};
-    grid.appendChild(btn);
-  });
-  
-  const wbtn=document.getElementById('time-next-btn');
-  if(available===0){
-    wbtn.textContent='Unirse a lista de espera';
-    wbtn.disabled=false;
-    wbtn.onclick=()=>showSysModal('Lista de Espera', 'Te avisaremos por WhatsApp si se libera un cupo este día.', 'alert', () => go('s-home'));
-  } else {
-    wbtn.textContent='Siguiente →';
-    wbtn.onclick=()=>go('s-book-confirm');
-    wbtn.disabled=!state.time;
-  }
-}
-
-function renderConfirm(){
-  const d=state.day,h=state.time||'14:00',s=state.svc||'Corte';
-  const dayStr=DAYS_ES[d.getDay()]+' '+d.getDate()+' '+MONTHS_ES[d.getMonth()];
-  document.getElementById('confirm-summary').innerHTML=`
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px">
-      <div style="font-size:32px; background:var(--color-background-secondary); border-radius:12px; width:50px; height:50px; display:flex; align-items:center; justify-content:center;">${state.svcIco||'✂️'}</div>
+  <main class="px-6 pt-12 max-w-md mx-auto">
+    <!-- Header Section -->
+    <header class="flex justify-between items-center mb-10 opacity-0 animate-[fadeSlideUp_0.6s_cubic-bezier(0.16,1,0.3,1)_forwards]">
       <div>
-        <div style="font-size:16px;font-weight:600;color:var(--color-text-primary)">${s}</div>
-        <div style="font-size:14px;color:var(--color-text-secondary); margin-top:2px;">${dayStr} · ${h}</div>
+        <p class="text-sm text-gray-500 font-medium mb-1">Buenos días,</p>
+        <h1 class="text-3xl font-bold tracking-tight text-brand-text">Hola, Matías</h1>
       </div>
-    </div>`;
-  document.getElementById('success-detail').innerHTML=s+'<br>'+dayStr+' · '+h;
-}
+      <div class="relative">
+        <img src="https://i.pravatar.cc/150?u=matias" alt="Avatar Usuario" class="w-14 h-14 rounded-full object-cover shadow-sm ring-4 ring-white">
+        <!-- Online/Notification Badge -->
+        <div class="absolute bottom-0 right-0 w-4 h-4 bg-brand-accent rounded-full border-[3px] border-white"></div>
+      </div>
+    </header>
 
-function confirmBooking(){ go('s-success'); }
+    <!-- Quick Action / Repetir Corte -->
+    <section class="mb-10 opacity-0 animate-[fadeSlideUp_0.6s_cubic-bezier(0.16,1,0.3,1)_forwards] delay-100">
+      <button class="w-full relative overflow-hidden rounded-[2rem] bg-white p-6 shadow-lg shadow-gray-200/50 border border-gray-100 flex items-center gap-5 group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 text-left">
+        <!-- Hover Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-br from-brand-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        
+        <!-- Icon Container -->
+        <div class="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-brand-accent to-brand-accentDark text-white shadow-md shadow-brand-accent/30 shrink-0 transform group-hover:scale-105 transition-transform duration-300">
+          <i class="ph ph-scissors text-3xl"></i>
+        </div>
+        
+        <!-- Text -->
+        <div class="flex-1">
+          <h2 class="text-lg font-bold text-brand-text mb-1 group-hover:text-brand-accentDark transition-colors">Repetir mi último corte</h2>
+          <p class="text-sm text-gray-500 font-medium">Fade + Perfilado de barba</p>
+        </div>
+        
+        <!-- Chevron -->
+        <div class="text-gray-300 group-hover:text-brand-accent transition-colors transform group-hover:translate-x-1 duration-300 shrink-0">
+          <i class="ph-bold ph-caret-right text-xl"></i>
+        </div>
+      </button>
+    </section>
 
-function repeatBooking(){
-  state.svc='Corte + barba';state.svcDur=45;state.svcIco='💈';
-  const days=getNext10Days();state.day=days[0];state.time=null;
-  go('s-book-time');
-}
+    <!-- Próximas Citas -->
+    <section class="opacity-0 animate-[fadeSlideUp_0.6s_cubic-bezier(0.16,1,0.3,1)_forwards] delay-200">
+      <div class="flex justify-between items-end mb-6">
+        <h2 class="text-xl font-bold text-brand-text tracking-tight">Próximas Citas</h2>
+        <a href="#" class="text-sm font-semibold text-brand-accent hover:text-brand-accentDark transition-colors">Ver todas</a>
+      </div>
 
-function showReschedule(){
-  showSysModal('Reagendar', 'Solo puedes reagendar con más de 12 horas de anticipación. ¿Deseas buscar otra hora?', 'confirm', () => {
-    state.svc='Corte + barba';state.svcDur=45;state.svcIco='💈';
-    go('s-book-time');
-  });
-}
+      <div class="space-y-4">
+        <!-- Tarjeta de Cita 1 (Confirmada) -->
+        <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100/80 flex flex-col gap-4 relative overflow-hidden transition-shadow hover:shadow-md">
+          <!-- Borde izquierdo decorativo -->
+          <div class="absolute top-0 left-0 w-1.5 h-full bg-brand-accent"></div>
+          
+          <div class="flex justify-between items-start pl-2">
+            <div class="flex gap-4">
+              <!-- Calendario Date -->
+              <div class="flex flex-col items-center justify-center bg-brand-bg rounded-2xl w-14 h-16 border border-gray-100">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">OCT</span>
+                <span class="text-xl font-bold text-brand-text leading-none mt-1">14</span>
+              </div>
+              
+              <!-- Info -->
+              <div>
+                <div class="flex items-center gap-2.5 mb-1.5">
+                  <h3 class="font-bold text-brand-text text-base">Corte Clásico</h3>
+                  <!-- Indicador Cita Confirmada (Punto Verde Brillante) -->
+                  <span class="flex h-2.5 w-2.5 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-60"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-accent shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+                  </span>
+                </div>
+                <p class="text-sm text-gray-500 flex items-center gap-1.5 font-medium">
+                  <i class="ph-fill ph-clock text-gray-400 text-base"></i> 16:30 - 17:15
+                </p>
+              </div>
+            </div>
+            
+            <!-- Precio -->
+            <div class="text-right">
+              <span class="font-bold text-lg text-brand-text">$15.000</span>
+            </div>
+          </div>
+          
+          <!-- Barbero Detail & Actions -->
+          <div class="flex items-center justify-between pt-3.5 border-t border-gray-50 mt-1 pl-2">
+             <div class="flex items-center gap-3">
+               <img src="https://i.pravatar.cc/150?u=alejandro" alt="Barbero" class="w-7 h-7 rounded-full bg-gray-100 object-cover ring-2 ring-white">
+               <span class="text-xs font-medium text-gray-500">Con <span class="font-bold text-brand-text">Alejandro</span></span>
+             </div>
+             <button onclick="openCancelSheet()" class="text-[11px] font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg active:scale-95 transition-all outline-none">
+               Cancelar
+             </button>
+          </div>
+        </div>
 
-function showCancel(){
-  showSysModal('Cancelar Cita', '¿Confirmas que quieres cancelar tu cita del Jue 10 abr a las 14:00?', 'danger', () => {
-    showSysModal('Cancelada', 'Tu cupo ha sido liberado exitosamente.');
-  });
-}
+      </div>
+    </section>
+  </main>
 
-function selectLook(el,label,svc){
-  document.querySelectorAll('.lb-card').forEach(c=>{c.classList.remove('sel');const b=c.querySelector('.lb-badge');if(b)b.remove();});
-  el.classList.add('sel');
-  const badge=document.createElement('div');badge.className='lb-badge';badge.textContent='✓';el.appendChild(badge);
-  state.lookSvc=svc;
+  <!-- Bottom Navigation Bar (Floating & Glassmorphism) -->
+  <div class="fixed bottom-6 left-0 right-0 px-6 max-w-md mx-auto z-50 opacity-0 animate-[fadeSlideUp_0.6s_cubic-bezier(0.16,1,0.3,1)_forwards] delay-300">
+    <nav class="glass-nav rounded-[2rem] px-6 py-4 flex justify-between items-center shadow-xl shadow-gray-200/40">
+      <!-- Item: Inicio (Activo) -->
+      <a href="#" class="flex flex-col items-center gap-1.5 text-brand-accent group">
+        <div class="relative">
+          <i class="ph-fill ph-house text-2xl group-active:scale-95 transition-transform"></i>
+          <!-- Indicador inferior de sección activa -->
+          <span class="absolute -bottom-3 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-brand-accent rounded-full"></span>
+        </div>
+        <span class="text-[10px] font-bold">Inicio</span>
+      </a>
+      
+      <!-- Item: Reservar -->
+      <a href="#" class="flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-text transition-colors group">
+        <i class="ph ph-calendar-plus text-2xl group-hover:scale-105 group-active:scale-95 transition-transform"></i>
+        <span class="text-[10px] font-semibold">Reservar</span>
+      </a>
+      
+      <!-- Item: Lookbook -->
+      <a href="#" class="flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-text transition-colors group">
+        <i class="ph ph-images text-2xl group-hover:scale-105 group-active:scale-95 transition-transform"></i>
+        <span class="text-[10px] font-semibold">Lookbook</span>
+      </a>
+      
+      <!-- Item: Perfil -->
+      <a href="#" class="flex flex-col items-center gap-1.5 text-gray-400 hover:text-brand-text transition-colors group">
+        <i class="ph ph-user text-2xl group-hover:scale-105 group-active:scale-95 transition-transform"></i>
+        <span class="text-[10px] font-semibold">Perfil</span>
+      </a>
+    </nav>
+  </div>
+
+  <!-- ================= BOTTOM SHEET CANCELAR CITA ================= -->
   
-  const sug=document.getElementById('lb-suggestion');
-  document.getElementById('lb-sug-text').innerHTML=`Para lograr el estilo <b>"${label}"</b> te recomendamos agendar: <b>${svc}</b>.`;
-  sug.style.display='block';
-}
+  <!-- Backdrop -->
+  <div id="cancelBackdrop" class="fixed inset-0 bg-[#111827]/40 backdrop-blur-[2px] z-50 opacity-0 pointer-events-none transition-opacity duration-300 ease-out" onclick="closeCancelSheet()"></div>
+  
+  <!-- Panel Bottom Sheet -->
+  <div id="cancelSheet" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white rounded-t-[2rem] pt-3 px-6 pb-8 z-50 transform translate-y-full transition-transform duration-500 shadow-[0_-15px_40px_rgba(0,0,0,0.12)]" style="transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.15);">
+    
+    <!-- Drag Handle -->
+    <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6 cursor-pointer" onclick="closeCancelSheet()"></div>
+    
+    <div class="flex flex-col items-center text-center px-2">
+      <!-- Ícono de advertencia -->
+      <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-5 shrink-0">
+         <i class="ph-fill ph-warning-circle text-4xl text-red-500"></i>
+      </div>
+      
+      <h3 class="text-2xl font-bold text-brand-text mb-2 tracking-tight">¿Cancelar cita?</h3>
+      <p class="text-[14px] text-gray-500 mb-8 leading-relaxed">Esta acción no se puede deshacer. Tu cupo de las 16:30 quedará libre para otro cliente.</p>
+      
+      <!-- Botones Stacked -->
+      <div class="w-full flex flex-col gap-3">
+          <!-- Destructive Button -->
+          <button onclick="confirmCancel()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-4 rounded-full active:scale-[0.98] transition-all flex items-center justify-center gap-2 outline-none">
+             Sí, cancelar cita
+          </button>
+          <!-- Ghost Button -->
+          <button onclick="closeCancelSheet()" class="w-full bg-transparent hover:bg-gray-50 text-gray-500 font-bold py-4 rounded-full active:scale-[0.98] transition-all outline-none">
+             No, mantener cita
+          </button>
+      </div>
+    </div>
+  </div>
 
-function goFromLook(){
-  if(!state.lookSvc)return;
-  const map={'Corte':{dur:25,ico:'✂️'},'Barba':{dur:20,ico:'🪒'},'Corte + barba':{dur:45,ico:'💈'},'Perfilado':{dur:15,ico:'✨'}};
-  const m=map[state.lookSvc]||{dur:25,ico:'✂️'};
-  state.svc=state.lookSvc;state.svcDur=m.dur;state.svcIco=m.ico;
-  go('s-book-time');
-}
+  <script>
+    function openCancelSheet() {
+        document.getElementById('cancelBackdrop').classList.remove('opacity-0', 'pointer-events-none');
+        document.getElementById('cancelSheet').classList.remove('translate-y-full');
+    }
 
-function switchTab(el,target){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('th-done').style.display='none';
-  document.getElementById('th-cancelled').style.display='none';
-  document.getElementById(target).style.display='block';
-}
+    function closeCancelSheet() {
+        document.getElementById('cancelBackdrop').classList.add('opacity-0', 'pointer-events-none');
+        document.getElementById('cancelSheet').classList.add('translate-y-full');
+    }
 
-// Iniciar app
-startOTPTimer();
-</script>
+    function confirmCancel() {
+        closeCancelSheet();
+        setTimeout(() => {
+           alert("Cita cancelada correctamente.");
+           // Lógica realista: document.getElementById('citaContainer').remove();
+        }, 300);
+    }
+  </script>
 </body>
 </html>

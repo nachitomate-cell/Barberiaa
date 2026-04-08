@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#111827">
+  <title>Dashboard Admin | Barbería Premium</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="db.js"></script>
+  
+  <script>
+    if (prompt("Contraseña:") !== "1234") {
+        document.body.innerHTML = "<h1 style='color:white;text-align:center;margin-top:20%'>Acceso Denegado</h1>";
+        throw new Error("DNG");
+    }
+
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: { admin: { bg: '#111827', card: '#1F2937', accent: '#34D399', border: '#374151' } },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #111827; color: #F9FAFB; overscroll-behavior-y: none; }
+    /* Minimalist Switches */
+    .toggle-checkbox:checked { right: 0; border-color: #34D399; }
+    .toggle-checkbox:checked + .toggle-label { background-color: #34D399; }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen">
+
+  <div class="flex h-screen overflow-hidden">
+    
+    <aside class="hidden md:flex flex-col w-64 bg-admin-card border-r border-admin-border h-full shrink-0">
+      <div class="p-6 border-b border-admin-border">
+          <h1 class="text-xl font-bold text-white flex items-center gap-2"><i class="ph-fill ph-scissors text-admin-accent"></i> BarberManager</h1>
+      </div>
+      
+      <nav class="flex-1 p-4 space-y-2">
+        <button onclick="openTab('tab-citas', this)" class="nav-btn w-full flex items-center gap-3 bg-admin-accent/10 text-admin-accent px-4 py-3 rounded-xl font-medium transition-colors">
+          <i class="ph-fill ph-calendar-check text-xl"></i> Citas de la Agenda
+        </button>
+        <button onclick="openTab('tab-servicios', this)" class="nav-btn w-full flex items-center gap-3 text-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl font-medium transition-colors">
+          <i class="ph ph-list-dashes text-xl"></i> Servicios Locales
+        </button>
+        <button onclick="openTab('tab-config', this)" class="nav-btn w-full flex items-center gap-3 text-gray-400 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl font-medium transition-colors">
+          <i class="ph ph-gear text-xl"></i> Configuración
+        </button>
+      </nav>
+      
+      <div class="p-4 border-t border-admin-border">
+        <button class="flex items-center gap-3 text-gray-500 hover:text-red-400 px-4 py-2 w-full font-medium transition-colors" onclick="window.location.href='reservar.html'">
+          <i class="ph ph-sign-out text-xl"></i> Salir al Sitio
+        </button>
+      </div>
+    </aside>
+
+    <main class="flex-1 h-full overflow-y-auto w-full p-6 lg:p-10 max-w-7xl mx-auto">
+
+      <!-- MODULO 1: CITAS -->
+      <div id="tab-citas" class="tab-content block">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div>
+            <h2 class="text-2xl lg:text-3xl font-bold tracking-tight mb-2">Agenda Diaria</h2>
+            <div class="flex items-center gap-3">
+               <button onclick="changeAdminDate(-1)" class="w-8 h-8 rounded-lg bg-admin-card border border-admin-border hover:bg-admin-border flex items-center justify-center transition-colors"><i class="ph-bold ph-caret-left"></i></button>
+               <p class="text-admin-accent font-bold px-2 py-1 bg-admin-card border border-admin-border rounded-lg" id="adminDateText">Cargando...</p>
+               <button onclick="changeAdminDate(1)" class="w-8 h-8 rounded-lg bg-admin-card border border-admin-border hover:bg-admin-border flex items-center justify-center transition-colors"><i class="ph-bold ph-caret-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+           <div class="bg-admin-card border border-admin-border rounded-2xl p-5">
+             <div class="text-gray-400 text-sm font-semibold mb-1">Citas</div>
+             <div class="text-3xl font-bold text-white" id="statCitas">0</div>
+           </div>
+           <div class="bg-admin-card border border-admin-border rounded-2xl p-5">
+             <div class="text-gray-400 text-sm font-semibold mb-1">Ingresos Est.</div>
+             <div class="text-3xl font-bold text-admin-accent" id="statIngresos">$0</div>
+           </div>
+        </div>
+
+        <div class="bg-admin-card border border-admin-border rounded-3xl overflow-hidden shadow-xl">
+          <div id="bookingsList" class="divide-y divide-admin-border"></div>
+        </div>
+      </div>
+
+      <!-- MODULO 2: SERVICIOS -->
+      <div id="tab-servicios" class="tab-content hidden">
+        <h2 class="text-2xl lg:text-3xl font-bold tracking-tight mb-6">Gestión de Servicios</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="md:col-span-2 space-y-4" id="servicesAdminList"></div>
+            
+            <div class="bg-admin-card border border-admin-border rounded-2xl p-6 h-fit">
+                <h3 class="font-bold text-white mb-4">Crear Nuevo Servicio</h3>
+                <div class="space-y-4">
+                    <input type="text" id="ns-nombre" placeholder="Nombre completo" class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent">
+                    <div class="flex gap-2">
+                        <input type="number" id="ns-precio" placeholder="Precio ($)" class="w-1/2 bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent">
+                        <input type="number" id="ns-duracion" placeholder="Duración (min)" class="w-1/2 bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent">
+                    </div>
+                    <button onclick="crearServicio()" class="w-full bg-admin-accent text-admin-bg font-bold py-3 rounded-xl hover:bg-emerald-300 transition-colors">Guardar Servicio</button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- MODULO 3: CONFIGURACIÓN -->
+      <div id="tab-config" class="tab-content hidden">
+          <h2 class="text-2xl lg:text-3xl font-bold tracking-tight mb-6">Configuración</h2>
+          
+          <div class="grid md:grid-cols-2 gap-6">
+              <!-- Intervalos -->
+               <div class="bg-admin-card border border-admin-border rounded-2xl p-6">
+                   <h3 class="font-bold text-white mb-2 flex items-center gap-2"><i class="ph ph-clock"></i> Selector de Intervalos</h3>
+                   <p class="text-sm text-gray-400 mb-6">Define en qué bloques de tiempo divides tu día laboral. Esto redibuja las horas del calendario.</p>
+                   
+                   <select id="config-intervalo" onchange="guardarIntervalo()" class="w-full bg-admin-bg border border-admin-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-admin-accent mb-2">
+                       <option value="30">Intervalos de 30 Minutos (Normal)</option>
+                       <option value="60">Intervalos de 60 Minutos (Bloques Exactos)</option>
+                   </select>
+               </div>
+
+              <!-- Días Laborables -->
+               <div class="bg-admin-card border border-admin-border rounded-2xl p-6">
+                   <h3 class="font-bold text-white mb-2 flex items-center gap-2"><i class="ph ph-calendar"></i> Días Laborales</h3>
+                   <p class="text-sm text-gray-400 mb-6">Activa o desactiva qué días trabajas.</p>
+                   
+                   <div class="space-y-3" id="configDaysDiv">
+                        <!-- Generados por JS -->
+                   </div>
+               </div>
+          </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // ESTADO
+    let currentAdminDate = new Date();
+
+    function dateToLocalStr(d) {
+        let m = (d.getMonth()+1).toString().padStart(2, '0');
+        let day = d.getDate().toString().padStart(2, '0');
+        return `${d.getFullYear()}-${m}-${day}`;
+    }
+
+    // NAVEGACIÓN
+    function openTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.replace('block', 'hidden'));
+        document.getElementById(id).classList.replace('hidden', 'block');
+        
+        document.querySelectorAll('.nav-btn').forEach(b => {
+             b.classList.remove('bg-admin-accent/10', 'text-admin-accent');
+             b.classList.add('text-gray-400', 'hover:text-white', 'hover:bg-white/5');
+        });
+        btn.classList.add('bg-admin-accent/10', 'text-admin-accent');
+        btn.classList.remove('text-gray-400', 'hover:text-white', 'hover:bg-white/5');
+    }
+
+    // MODULO CITAS
+    function changeAdminDate(daysOffset) {
+        currentAdminDate.setDate(currentAdminDate.getDate() + daysOffset);
+        loadBookings();
+    }
+
+    function loadBookings() {
+        const dStr = dateToLocalStr(currentAdminDate);
+        document.getElementById('adminDateText').innerText = dStr;
+        
+        const bookings = DB.getBookings();
+        const todayBookings = bookings.filter(b => b.fecha === dStr && b.estado === "Confirmado").sort((a, b) => a.hora.localeCompare(b.hora));
+        
+        const listEl = document.getElementById('bookingsList');
+        listEl.innerHTML = '';
+        
+        let totalIncome = 0;
+        const allServices = DB.getServices();
+
+        if (todayBookings.length === 0) listEl.innerHTML = '<div class="p-8 text-center text-gray-500">No hay citas agendadas para esta fecha.</div>';
+        else {
+            todayBookings.forEach(b => {
+                const srv = allServices.find(s => s.nombre === b.servicioNombre) || { precio: 0 };
+                totalIncome += srv.precio;
+                
+                listEl.innerHTML += `
+                <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-white/5 transition-colors group">
+                  <div class="flex items-center gap-4">
+                    <div class="bg-admin-bg border border-admin-border rounded-xl px-4 py-2 font-bold text-admin-accent shrink-0">${b.hora}</div>
+                    <div>
+                      <h4 class="font-bold text-lg text-white mb-0.5">${b.clienteNombre}</h4>
+                      <div class="flex items-center gap-3 text-sm text-gray-400 font-medium">
+                        <span class="flex items-center gap-1"><i class="ph ph-scissors"></i> ${b.servicioNombre} ${b.duracionServicio ? '('+b.duracionServicio+'m)' : ''}</span>
+                        <a href="https://wa.me/${encodeURIComponent((b.clienteTelefono||'').replace(/\\D/g, ''))}?text=${encodeURIComponent('Hola ' + b.clienteNombre + ', confirmo tu hora para hoy a las ' + b.hora)}" target="_blank" class="flex items-center gap-1 text-admin-accent hover:underline"><i class="ph-fill ph-whatsapp-logo text-lg"></i> Contactar WP</a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button onclick="cancelarCita('${b.id}')" class="bg-admin-bg border border-admin-border text-red-400 hover:bg-red-500/10 font-semibold px-4 py-2 rounded-xl transition-all">Cancelar</button>
+                  </div>
+                </div>`;
+            });
+        }
+        document.getElementById('statCitas').innerText = todayBookings.length;
+        document.getElementById('statIngresos').innerText = "$" + totalIncome.toLocaleString('es-CL');
+    }
+
+    function cancelarCita(id) {
+        if(confirm("¿Estás seguro de cancelar esta cita localmente? Al cancelar, liberarás la franja horaria.")) {
+            DB.updateBookingStatus(id, "Cancelado");
+            loadBookings();
+        }
+    }
+
+    // MODULO SERVICIOS
+    function loadServicesAdmin() {
+        const srvs = DB.getServices();
+        const list = document.getElementById('servicesAdminList');
+        list.innerHTML = '';
+        srvs.forEach(s => {
+            list.innerHTML += `
+            <div class="bg-admin-card border border-admin-border rounded-2xl p-4 flex justify-between items-center gap-4">
+               <div>
+                 <h4 class="font-bold text-white">${s.nombre}</h4>
+                 <p class="text-sm text-gray-400">$${s.precio.toLocaleString('es-CL')} • ${s.duracion} minutos</p>
+               </div>
+               <button onclick="borrarServ(${s.id})" class="text-red-400 bg-red-400/10 hover:bg-red-400/20 px-3 py-2 rounded-lg transition-colors"><i class="ph-fill ph-trash"></i></button>
+            </div>`;
+        });
+    }
+
+    function crearServicio() {
+        let nom = document.getElementById('ns-nombre').value;
+        let pre = parseInt(document.getElementById('ns-precio').value);
+        let dur = parseInt(document.getElementById('ns-duracion').value);
+        if(!nom || !pre || !dur) return alert("Rellena todos los campos.");
+        DB.addService({nombre: nom, precio: pre, duracion: dur});
+        
+        document.getElementById('ns-nombre').value = '';
+        document.getElementById('ns-precio').value = '';
+        document.getElementById('ns-duracion').value = '';
+        loadServicesAdmin();
+    }
+
+    function borrarServ(id) {
+        if(confirm("¿Borrar este servicio del catálogo?")) { DB.deleteService(id); loadServicesAdmin(); }
+    }
+
+    // MODULO CONFIGURACION
+    function loadConfig() {
+        const set = DB.getSettings();
+        document.getElementById('config-intervalo').value = set.intervaloMinutos.toString();
+        
+        const daysDiv = document.getElementById('configDaysDiv');
+        daysDiv.innerHTML = '';
+        const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        
+        for(let i=0; i<7; i++){
+            let act = set.diasLaborales.includes(i) ? 'checked' : '';
+            daysDiv.innerHTML += `
+            <label class="flex items-center justify-between cursor-pointer p-3 bg-admin-bg rounded-xl border border-admin-border">
+              <span class="text-white font-medium">${dayNames[i]}</span>
+              <div class="relative">
+                <input type="checkbox" onchange="toggleDay(${i}, this)" class="sr-only" ${act}>
+                <div class="block bg-gray-600 w-10 h-6 rounded-full transition-colors ${act ? 'bg-admin-accent' : ''}"></div>
+                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${act ? 'transform translate-x-4' : ''}"></div>
+              </div>
+            </label>`;
+        }
+    }
+
+    function toggleDay(ix, inputRef) {
+        const set = DB.getSettings();
+        let current = set.diasLaborales;
+        
+        if(inputRef.checked) { if(!current.includes(ix)) current.push(ix); }
+        else { current = current.filter(x => x !== ix); }
+        
+        DB.updateSettings({ diasLaborales: current });
+        
+        // Update styling of toggle
+        const bgNode = inputRef.nextElementSibling;
+        const dotNode = inputRef.nextElementSibling.nextElementSibling;
+        if(inputRef.checked) {
+            bgNode.classList.add('bg-admin-accent');
+            dotNode.classList.add('transform', 'translate-x-4');
+        } else {
+            bgNode.classList.remove('bg-admin-accent');
+            dotNode.classList.remove('transform', 'translate-x-4');
+        }
+    }
+
+    function guardarIntervalo() {
+        let val = parseInt(document.getElementById('config-intervalo').value);
+        DB.updateSettings({ intervaloMinutos: val });
+        alert("Nota: Las citas existentes en la agenda seguirán siendo visibles, pero los nuevos clientes solo verán bloques de " + val + " minutos en el formulario de reservas.");
+    }
+
+    // INIT EXTENDIDO
+    window.addEventListener('DOMContentLoaded', () => {
+        loadBookings();
+        loadServicesAdmin();
+        loadConfig();
+    });
+
+  </script>
+</body>
+</html>
