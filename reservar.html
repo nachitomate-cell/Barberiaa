@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#FAFAFA">
-  <title>Agendar Hora | Barber├¡a Premium</title>
+  <title>Agendar Hora | Barbería Premium</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,7 +62,10 @@
       <button onclick="goBack()" class="w-11 h-11 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow-sm active:scale-95 transition-transform text-brand-text">
         <i class="ph-bold ph-arrow-left text-xl"></i>
       </button>
-      <h1 class="text-xl font-bold tracking-tight text-brand-text">Nueva Reserva</h1>
+      <div class="flex items-center gap-2">
+        <img src="logo.png" alt="Marcelo Hairdressing" class="h-10 w-10 rounded-full object-cover border border-gray-100 shadow-sm">
+        <h1 class="text-xl font-bold tracking-tight text-brand-text">Marcelo Hairdressing</h1>
+      </div>
       <div class="w-11"></div>
     </header>
 
@@ -80,7 +83,7 @@
 
       <!-- PASO 1 -->
       <section id="step1" class="animate-[fadeSlideUp_0.5s_cubic-bezier(0.16,1,0.3,1)_forwards]">
-        <h2 class="text-2xl font-bold mb-6 text-brand-text tracking-tight">┬┐Qu├® servicio buscas?</h2>
+        <h2 class="text-2xl font-bold mb-6 text-brand-text tracking-tight">¿Qué servicio buscas?</h2>
         <div class="grid grid-cols-2 gap-4" id="servicesGrid">
         </div>
       </section>
@@ -94,7 +97,7 @@
             <h3 class="font-semibold text-gray-800 text-lg" id="currentMonthText"></h3>
           </div>
           <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6 scroll-smooth" id="calendarCarousel">
-             <!-- D├¡as Din├ímicos -->
+             <!-- Días Dinámicos -->
           </div>
         </div>
 
@@ -107,7 +110,7 @@
 
       <!-- PASO 3 -->
       <section id="step3" class="hidden opacity-0 transform translate-x-12">
-        <h2 class="text-2xl font-bold text-brand-text tracking-tight mb-2">├Ültimo paso</h2>
+        <h2 class="text-2xl font-bold text-brand-text tracking-tight mb-2">Último paso</h2>
         <p class="text-[14px] text-gray-500 mb-8 leading-relaxed">Ingresa tus datos para confirmar la reserva a tu nombre.</p>
         
         <div class="space-y-5">
@@ -116,7 +119,7 @@
                 <input type="text" id="clientName" placeholder="Ej. Ignacio Mateluna" class="w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-brand-text font-medium focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all shadow-sm">
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-2">Tel├®fono m├│vil</label>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Teléfono móvil</label>
                 <input type="tel" id="clientPhone" placeholder="+56 9 1234 5678" class="w-full bg-white border border-gray-200 rounded-2xl px-5 py-4 text-brand-text font-medium focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all shadow-sm">
             </div>
         </div>
@@ -179,7 +182,7 @@
         const today = new Date(); 
         const settings = DB.getSettings();
         
-        const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mi├®', 'Jue', 'Vie', 'S├íb'];
+        const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
         const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         
         document.getElementById('currentMonthText').innerText = `${months[today.getMonth()]} ${today.getFullYear()}`;
@@ -254,7 +257,7 @@
         grid.innerHTML = '';
         
         if(hours.length === 0) {
-            grid.innerHTML = `<p class="text-sm text-gray-500">No hay horas disponibles este d├¡a.</p>`;
+            grid.innerHTML = `<p class="text-sm text-gray-500">No hay horas disponibles este día.</p>`;
             return;
         }
 
@@ -268,9 +271,9 @@
     }
 
     function selectService(btn) {
-        // Leer el ID desde el atributo data (siempre string ÔåÆ convertir a n├║mero para match exacto)
+        // Leer el ID desde el atributo data (siempre string -> convertir a número para match exacto)
         const rawId = btn.getAttribute('data-service-id');
-        const id = parseInt(rawId) || rawId; // Si era Date.now() es n├║mero grande; si es 1-4 default tambi├®n
+        const id = parseInt(rawId) || rawId; // Si era Date.now() es número grande; si es 1-4 default también
 
         document.querySelectorAll('.service-option').forEach(el => {
             el.classList.replace('border-brand-accent', 'border-gray-100');
@@ -286,7 +289,7 @@
         btn.querySelector('.icon-svg').classList.replace('text-gray-600', 'text-brand-accent');
         btn.querySelector('.price-tag').classList.replace('text-gray-500', 'text-brand-accent');
         
-        // Comparar como n├║mero o cadena seg├║n el ID almacenado
+        // Comparar como número o cadena según el ID almacenado
         selectedServiceObj = DB.getServices().find(s => String(s.id) === String(id));
     }
 
@@ -328,7 +331,7 @@
     function updateProgress() {
         const bar = document.getElementById('progressBar');
         const percentage = currentStep === 1 ? '33%' : (currentStep === 2 ? '66%' : '100%');
-        const textStates = ["Paso 1 de 3: Servicios", "Paso 2 de 3: Fecha y Hora", "Paso 3 de 3: Confirmaci├│n"];
+        const textStates = ["Paso 1 de 3: Servicios", "Paso 2 de 3: Fecha y Hora", "Paso 3 de 3: Confirmación"];
         
         bar.style.width = percentage;
         document.getElementById('progressPercentage').innerText = percentage;
@@ -382,7 +385,7 @@
                   <div class="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6">
                      <i class="ph-fill ph-check-circle text-5xl text-brand-accent"></i>
                   </div>
-                  <h2 class="text-3xl font-bold text-brand-text tracking-tight mb-2">┬íCita Confirmada!</h2>
+                  <h2 class="text-3xl font-bold text-brand-text tracking-tight mb-2">¡Cita Confirmada!</h2>
                   <p class="text-gray-500 font-medium">Te esperamos el ${currentDateStr} a las ${selectedTimeStr}.</p>
                </div>
             `;
